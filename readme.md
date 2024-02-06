@@ -33,8 +33,8 @@ Vous trouverez dans ce dépôt, tous les éléments nécessaires pour démarrer 
 
 1. Cloner ce dépôt `git clone https://github.com/DavidScanu/mlflow-server.git`
 2. Se déplacer à l'intérieur du dépôt GitHub : `cd mlflow-server/`
-6. Lancer le conteneur du serveur MLflow : `docker compose up -d`
-7. Accéder à l'interface utilisateur en accédant à `http://127.0.0.1:5001` ou `http://localhost:5001` dans votre navigateur.
+3. Lancer le conteneur du serveur MLflow : `docker compose up -d`
+4. Accéder à l'interface utilisateur en accédant à `http://127.0.0.1:5001` ou `http://localhost:5001` dans votre navigateur.
 
 ### Créer un serveur dans codespace (remote server) 
 
