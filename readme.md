@@ -26,18 +26,27 @@ Vous trouverez dans ce dépôt, tous les éléments nécessaires pour démarrer 
 - **Recipes**: Lignes directrices pour structurer les projets ML, visant à garantir des résultats optimisés pour des scénarios de déploiement réels.
 - **Projects**: Standardisez l'empaquetage du code ML, des flux de travail et des artefacts, en définissant les dépendances et les méthodes d'exécution pour chaque projet.
 
-## Guide d'utilisation
 
-### Alternative : Créer un serveur local
+## Installation
+
+### Créer un serveur local
 
 1. Cloner ce dépôt `git clone https://github.com/DavidScanu/mlflow-server.git`
 2. Se déplacer à l'intérieur du dépôt GitHub : `cd mlflow-server/`
 6. Lancer le conteneur du serveur MLflow : `docker compose up -d`
 7. Accéder à l'interface utilisateur en accédant à `http://127.0.0.1:5001` ou `http://localhost:5001` dans votre navigateur.
 
-#### Démo
+### Créer un serveur dans codespace (remote server) 
 
-Pour tester le serveur MLflow depuis votre environnement local : 
+1. Créer un codespace à partir de ce dépôt (UI de GitHub: Code / Codespaces / +)
+2. Installer les bibliothèques python : `pip install mlflow psycopg2-binary boto3`
+3. Lancer le conteneur du serveur MLflow : `docker compose up -d` (à enlever)
+4. Accéder à l'interface utilisateur en accédant à l'URL public exposée par codespace. Dans le Terminal, cliquer sur "Ports", puis définir l'URL du port 5001 comme public.
+
+
+## Démonstration
+
+Pour tester le serveur MLflow : 
 
 1. Créer un environnement python : `python3 -m venv .venv`
 2. Activer l'environnement python : `source .venv/bin/activate`
@@ -45,19 +54,21 @@ Pour tester le serveur MLflow depuis votre environnement local :
 4. Entrainer un modèle : `python3 demo/train.py`. Vous devez voir apparaître un nouveau run dans l'UI MLflow.
 5. Utiliser un modèle : `python3 demo/try-model.py`. Cette commande retourne un modèle dans le Terminal. 
 
-### Créer un serveur MLflow dans codespace (remote server) 
+## Guide d'utilisation
 
-1. Créer un codespace à partir de ce dépôt (UI de GitHub: Code / Codespaces / +)
-2. Installer les bibliothèques python : `pip install mlflow psycopg2-binary boto3`
-3. Lancer le conteneur du serveur MLflow : `docker compose up -d` (à enlever)
-4. Accéder à l'interface utilisateur en accédant à l'URL public exposée par codespace. Dans le Terminal, cliquer sur "Ports", puis définir l'URL du port 5001 comme public.
+### Utiliser le serveur MLflow depuis votre environnement local
 
-#### Utiliser le serveur MLflow depuis votre environnement distant
+Pour utiliser le serveur MLflow comme **serveur local** (c-à-d dans le codespace lui-même), utiliser l'une de ces deux méthodes :
 
-Pour utiliser le serveur MLflow depuis un **environnement distant** (ex: Colab, VM ou depuis votre PC), il faut définir l'**URI de tracking MLflow** en utilisant l'une de ces deux méthodes :
+- Dans votre code Python : `mlflow.set_tracking_uri("http://127.0.0.1:5001")` ou `mlflow.set_tracking_uri("http://localhost:5001")`
+- Avec une variable d'environnement : `export MLFLOW_TRACKING_URI=http://127.0.0.1:5001` ou `export MLFLOW_TRACKING_URI=http://localhost:5001`
 
-- Python : `mlflow.set_tracking_uri("http://url-public-exposee-par-codespace-github")`
-- Variable d'environnement : `export MLFLOW_TRACKING_URI=http://url-public-exposee-par-codespace-github`
+### Utiliser le serveur depuis votre environnement distant
+
+Pour utiliser le serveur MLflow comme **serveur distant** (exemple depuis: Colab, VM ou depuis votre PC), il faut définir l'**URI de tracking MLflow** en utilisant l'une de ces deux méthodes :
+
+- Dans votre code Python : `mlflow.set_tracking_uri("http://url-public-exposee-par-codespace-github")`
+- Avec une variable d'environnement  : `export MLFLOW_TRACKING_URI=http://url-public-exposee-par-codespace-github`
 
 Voici un exemple : 
 
@@ -65,82 +76,6 @@ Voici un exemple :
 - Changer la variable `mlflow_tracking_uri`
 - Changer la variable `run_id`
 
-
-#### Utiliser le serveur MLflow depuis votre environnement local
-
-Alternativement, pour utiliser le serveur dans un **environnement local** (c-à-d dans le codespace lui-même), utiliser l'une de ces deux méthodes :
-- Python : `mlflow.set_tracking_uri("http://127.0.0.1:5001")` ou `mlflow.set_tracking_uri("http://localhost:5001")`
-- Variable d'environnement : `export MLFLOW_TRACKING_URI=http://127.0.0.1:5001` ou `export MLFLOW_TRACKING_URI=http://localhost:5001`
-
-### Entraîner et tracker un modèle
-
-Exécuter ce code python dans un notebook local ou notebook Colab, en remplaçant `mlflow_tracking_uri` par l'URI de Tracking MLflow qui convient.
-
-```
-# Check MLflow Tracking with simple training example
-import mlflowExecuter ce code python dans un notebook local ou notebook Colab, en remplaçant `mlflow_tracking_uri` par l'URI de Tracking MLflow qui convient.
-
-from sklearn.model_selection import train_test_split
-from sklearn.datasets import load_diabetes
-from sklearn.ensemble import RandomForestRegressor
-
-# Remote server URIs
-mlflow_tracking_uri = "http://url-public-exposee-par-codespace-github"
-
-# Local server URIs
-# mlflow_tracking_uri = "http://127.0.0.1:5001"
-
-# Set MLflow Tracking URI
-mlflow.set_tracking_uri(mlflow_tracking_uri)
-
-mlflow.autolog()
-
-db = load_diabetes()
-X_train, X_test, y_train, y_test = train_test_split(db.data, db.target)
-
-# Create and train models.
-rf = RandomForestRegressor(n_estimators=100, max_depth=6, max_features=3)
-rf.fit(X_train, y_train)
-
-# Use the model to make predictions on the test dataset.
-predictions = rf.predict(X_test)
-```
-
-### Utiliser un modèle
-
-Exécuter ce code python dans un notebook local ou notebook Colab, en remplaçant :
-- `mlflow_tracking_uri` par l'URI de Tracking MLflow qui convient.
-- `run_id` par l'ID du run du modèle que vous souhaitez utiliser.
-
-```
-import mlflow
-
-# Remote server URIs
-mlflow_tracking_uri = "http://url-public-exposee-par-codespace-github"
-
-# Local server URIs
-# mlflow_tracking_uri = "http://127.0.0.1:5001"
-
-# Set MLflow Tracking URI
-mlflow.set_tracking_uri(mlflow_tracking_uri)
-
-run_id = "YOUR_RUN_ID"  # You can find run ID in the Tracking UI
-artifact_path = "model"
-
-# Download artifact via the tracking server
-mlflow_artifact_uri = f"runs:/{run_id}/{artifact_path}"
-local_path = mlflow.artifacts.download_artifacts(mlflow_artifact_uri)
-
-# Load the model
-model = mlflow.sklearn.load_model(local_path)
-
-# If the model prints, everything works!
-print(model)
-```
-
-## Docker Hub
-
-- <a href="https://hub.docker.com/r/davidscanu/mlflow-server" target="_BLANK">https://hub.docker.com/r/davidscanu/mlflow-server</a>
 
 ## A Propos
 
